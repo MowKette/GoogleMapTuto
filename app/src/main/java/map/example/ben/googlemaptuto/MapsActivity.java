@@ -74,10 +74,6 @@ public class MapsActivity extends FragmentActivity implements com.androidmapsext
         final ToggleButton buttonAdd = (ToggleButton) findViewById(R.id.buttonMarker);
         buttonAdd.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
-                /*mMap.addMarker(new MarkerOptions()
-                .position(new LatLng(48.5839, 7.7455))
-                .title("Strasbourg")
-                .snippet("Population: 271 782"));*/
 
                 if(buttonAdd.isChecked()) {
                     mMap.setOnMapClickListener(new com.androidmapsextensions.GoogleMap.OnMapClickListener() {
@@ -108,7 +104,9 @@ public class MapsActivity extends FragmentActivity implements com.androidmapsext
                                 drawCircle(point);
 
                                 // This intent will call the activity ProximityActivity
-                                Intent proximityIntent = new Intent("map.example.ben.googlemaptuto.activity.proximity");
+                                //Intent proximityIntent = new Intent("map.example.ben.googlemaptuto.activity.proximity");
+                                //Intent proximityIntent = new Intent(getBaseContext(), ProximityActivity.class);
+                                Intent proximityIntent = new Intent(MapsActivity.this, ProximityActivity.class);
 
 
                                 // Passing latitude and longitude to the PendingActivity
@@ -118,8 +116,8 @@ public class MapsActivity extends FragmentActivity implements com.androidmapsext
 
                                 // Creating a pending intent which will be invoked by LocationManager when the specified region is
                                 // entered or exited
-                                //pendingIntent = PendingIntent.getActivity(getBaseContext(), 0, proximityIntent, 0);
-                                pendingIntent = PendingIntent.getBroadcast(getBaseContext(), 0, proximityIntent, 0);
+                                pendingIntent = PendingIntent.getActivity(getBaseContext(), 0, proximityIntent, 0);
+                                //pendingIntent = PendingIntent.getBroadcast(getBaseContext(), 0, proximityIntent, 0);
 
                                 if (ContextCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                                     locationManager.addProximityAlert(point.latitude, point.longitude, 50, -1, pendingIntent);

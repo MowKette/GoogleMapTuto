@@ -23,6 +23,7 @@ public class ProximityActivity extends Activity {
     String notificationContent;
     String tickerMessage;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 

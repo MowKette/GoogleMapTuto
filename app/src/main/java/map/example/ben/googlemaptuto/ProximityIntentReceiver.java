@@ -23,6 +23,7 @@ public class ProximityIntentReceiver extends BroadcastReceiver {
     NotificationManager notificationManager;
     Notification myNotification;
 
+
     @Override
     public void onReceive(Context context, Intent intent) {
 
