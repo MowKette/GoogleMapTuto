@@ -165,46 +165,6 @@ public class MapsActivity extends FragmentActivity implements com.androidmapsext
 
             }
         });
-
-        /*if(mMap != null) {
-            mMap.setOnMapLongClickListener(new com.androidmapsextensions.GoogleMap.OnMapLongClickListener() {
-                @Override
-                public void onMapLongClick(LatLng point) {
-                    Intent proximityIntent = new Intent("map.example.ben.googlemaptuto.activity.proximity");
-                    proximityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                    pendingIntent = PendingIntent.getActivity(getBaseContext(), 0, proximityIntent, 0);
-
-                    // Removing the proximity alert
-                    if (ContextCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                        locationManager.removeProximityAlert(pendingIntent);
-                    } else {
-                        ActivityCompat.requestPermissions(MapsActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
-                        if (ContextCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                            locationManager.removeProximityAlert(pendingIntent);
-                        }
-                    }
-
-                    if(mMap != null) {
-                        // Removing the marker and circle from the Google Map
-                        mMap.clear();
-                    }
-
-
-                    // Opening the editor object to delete data from sharedPreferences
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-
-                    // Clearing the editor
-                    editor.clear();
-
-                    // Committing the changes
-                    editor.commit();
-
-                    Toast.makeText(getBaseContext(), "Proximity Alert is removed", Toast.LENGTH_LONG).show();
-                }
-            });
-        }*/
-
     }
 
 
@@ -222,12 +182,6 @@ public class MapsActivity extends FragmentActivity implements com.androidmapsext
     @Override
     public void onMapReady(com.androidmapsextensions.GoogleMap googleMap) {
         mMap = googleMap;
-
-       /* Log.d("MyApp","test");
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new com.androidmapsextensions.MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));*/
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
@@ -297,7 +251,8 @@ public class MapsActivity extends FragmentActivity implements com.androidmapsext
         mMap.setOnMapLongClickListener(new com.androidmapsextensions.GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng point) {
-                Intent proximityIntent = new Intent("map.example.ben.googlemaptuto.activity.proximity");
+                //Intent proximityIntent = new Intent("map.example.ben.googlemaptuto.activity.proximity");
+                Intent proximityIntent = new Intent(MapsActivity.this, ProximityActivity.class);
                 proximityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
                 pendingIntent = PendingIntent.getActivity(getBaseContext(), 0, proximityIntent, 0);
@@ -305,10 +260,12 @@ public class MapsActivity extends FragmentActivity implements com.androidmapsext
                 // Removing the proximity alert
                 if (ContextCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                     locationManager.removeProximityAlert(pendingIntent);
+                    Toast.makeText(getBaseContext(), "Proximity Alert is removed", Toast.LENGTH_SHORT).show();
                 } else {
                     ActivityCompat.requestPermissions(MapsActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
                     if (ContextCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                         locationManager.removeProximityAlert(pendingIntent);
+                        Toast.makeText(getBaseContext(), "Proximity Alert is removed", Toast.LENGTH_SHORT).show();
                     }
                 }
 
@@ -327,7 +284,7 @@ public class MapsActivity extends FragmentActivity implements com.androidmapsext
                 // Committing the changes
                 editor.commit();
 
-                Toast.makeText(getBaseContext(), "Proximity Alert is removed", Toast.LENGTH_LONG).show();
+                //Toast.makeText(getBaseContext(), "Proximity Alert is removed", Toast.LENGTH_LONG).show();
             }
         });
     }
