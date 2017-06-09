@@ -46,7 +46,7 @@ public class ProximityActivity extends Activity {
             notificationContent = "Entered the region:" + strLocation;
             tickerMessage = "Entered the region:" + strLocation;
         }else{
-            Toast.makeText(getBaseContext(),"Exiting the region"  ,Toast.LENGTH_LONG).show();
+            Toast.makeText(getBaseContext(), "Exiting the region", Toast.LENGTH_LONG).show();
             notificationTitle = "Proximity - Exit";
             notificationContent = "Exited the region:" + strLocation;
             tickerMessage = "Exited the region:" + strLocation;

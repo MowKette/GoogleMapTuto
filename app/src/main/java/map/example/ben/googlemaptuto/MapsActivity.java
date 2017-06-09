@@ -23,20 +23,29 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import com.androidmapsextensions.*;
-
+import com.google.android.gms.vision.text.Text;
 
 
 import android.Manifest;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-public class MapsActivity extends FragmentActivity implements com.androidmapsextensions.OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class MapsActivity extends FragmentActivity implements com.androidmapsextensions.OnMapReadyCallback {
 
     //private GoogleMap mMap;
     private com.androidmapsextensions.GoogleMap mMap;
+
+    //private Map<String, com.androidmapsextensions.MarkerOptions> allMarkers = new HashMap<>();
+
     LocationManager locationManager;
     PendingIntent pendingIntent;
     SharedPreferences sharedPreferences;
@@ -65,8 +74,11 @@ public class MapsActivity extends FragmentActivity implements com.androidmapsext
 
         final Button buttonGo = (Button) findViewById(R.id.buttonGo);
         buttonGo.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v) {
 
+            public void onClick(View v) {
+                /*for(int i=0; i<allMarkers.size(); i++) {
+                    Toast.makeText(getBaseContext(), "This is allMarkers'ID = " + allMarkers.get())
+                }*/
 
             }
         });
@@ -79,25 +91,9 @@ public class MapsActivity extends FragmentActivity implements com.androidmapsext
                     mMap.setOnMapClickListener(new com.androidmapsextensions.GoogleMap.OnMapClickListener() {
                         @Override
                         public void onMapClick(LatLng point) {
-                            //CustomMarker marker = new CustomMarker().markerOptions.position(new LatLng(point.latitude, point.longitude)).title("New Marker");
-                            //CustomMarker marker = new CustomMarker();
-                            //MarkerOptions marker2 = new MarkerOptions();
-                            //com.androidmapsextensions.MarkerOptions marker3 = new com.androidmapsextensions.MarkerOptions();
-
-                            //CircleOptions circle = new CircleOptions();
-                            //locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
                             if(mMap != null) {
-                            /*marker.markerOptions.position(new LatLng(point.latitude, point.longitude)).title("test");
-                            mMap.addMarker(marker.markerOptions);*/
-                            /*marker2.position(new LatLng(point.latitude, point.longitude)).title("test");
-                            mMap.addMarker(marker2);*/
 
-                                /*marker3.position(new LatLng(point.latitude, point.longitude)).title("Marker");
-                                circle.center(marker3.getPosition());
-                                circle.radius(100);
-                                mMap.addMarker(marker3);
-                                mMap.addCircle(circle);*/
                                 locationCount++;
 
                                 drawMarker(point);
@@ -105,7 +101,6 @@ public class MapsActivity extends FragmentActivity implements com.androidmapsext
 
                                 // This intent will call the activity ProximityActivity
                                 //Intent proximityIntent = new Intent("map.example.ben.googlemaptuto.activity.proximity");
-                                //Intent proximityIntent = new Intent(getBaseContext(), ProximityActivity.class);
                                 Intent proximityIntent = new Intent(MapsActivity.this, ProximityActivity.class);
 
 
@@ -117,7 +112,6 @@ public class MapsActivity extends FragmentActivity implements com.androidmapsext
                                 // Creating a pending intent which will be invoked by LocationManager when the specified region is
                                 // entered or exited
                                 pendingIntent = PendingIntent.getActivity(getBaseContext(), 0, proximityIntent, 0);
-                                //pendingIntent = PendingIntent.getBroadcast(getBaseContext(), 0, proximityIntent, 0);
 
                                 if (ContextCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                                     locationManager.addProximityAlert(point.latitude, point.longitude, 50, -1, pendingIntent);
@@ -227,7 +221,7 @@ public class MapsActivity extends FragmentActivity implements com.androidmapsext
 
                 if(mMap != null) {
 
-                    Toast.makeText(getBaseContext(), "mMap isn't null", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getBaseContext(), "mMap isn't null", Toast.LENGTH_SHORT).show();
 
                     // Drawing marker on the map
                     drawMarker(new LatLng(Double.parseDouble(lat), Double.parseDouble(lng)));
@@ -247,6 +241,59 @@ public class MapsActivity extends FragmentActivity implements com.androidmapsext
             }
 
         }
+
+        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+            @Override
+            public View getInfoContents(Marker marker) {
+
+                // Getting view from the layout file info_window_layout
+                View v = getLayoutInflater().inflate(R.layout.info_window, null);
+
+                // Getting the position from the marker
+                LatLng latLng = marker.getPosition();
+
+                // Getting reference to the TextView to set latitude
+                TextView tvLat = (TextView) v.findViewById(R.id.tv_lat);
+
+                // Getting reference to the TextView to set longitude
+                TextView tvLng = (TextView) v.findViewById(R.id.tv_lng);
+
+                TextView tvTitle = (TextView) v.findViewById(R.id.tv_title);
+                final TextView tvRange = (TextView) v.findViewById(R.id.tv_range);
+                TextView tvHour = (TextView) v.findViewById(R.id.tv_hour);
+                TextView tvMinute = (TextView) v.findViewById(R.id.tv_minute);
+
+                // Setting the latitude
+                tvLat.setText("Latitude:" + latLng.latitude);
+
+                // Setting the longitude
+                tvLng.setText("Longitude:"+ latLng.longitude);
+
+                tvTitle.setText(marker.getTitle());
+
+                MarkerInfo markerInfo = (MarkerInfo) marker.getTag();
+                int range = markerInfo.getRange();
+                int hour = markerInfo.getHour();
+                int minute = markerInfo.getMinute();
+
+                String title = markerInfo.getTitle();
+
+                if(markerInfo != null) {
+
+                    tvTitle.setText(title);
+                    tvRange.setText(String.valueOf(range));
+                    tvHour.setText(String.valueOf(hour));
+                    tvMinute.setText(String.valueOf(minute));
+                }
+
+                return v;
+            }
+
+            @Override
+            public View getInfoWindow(Marker marker) {
+                return null;
+            }
+        });
 
         mMap.setOnMapLongClickListener(new com.androidmapsextensions.GoogleMap.OnMapLongClickListener() {
             @Override
@@ -287,15 +334,23 @@ public class MapsActivity extends FragmentActivity implements com.androidmapsext
                 //Toast.makeText(getBaseContext(), "Proximity Alert is removed", Toast.LENGTH_LONG).show();
             }
         });
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+
+                return false;
+            }
+        });
+
     }
 
-    @Override
-    public boolean onMarkerClick(final Marker marker) {
 
-        return false;
+    public void onCircleClick(CircleOptions circleOptions){
+
     }
 
-    private void drawCircle(LatLng point){
+    public void drawCircle(LatLng point){
 
         // Instantiating CircleOptions to draw a circle around the marker
         CircleOptions circleOptions = new CircleOptions();
@@ -319,7 +374,7 @@ public class MapsActivity extends FragmentActivity implements com.androidmapsext
         mMap.addCircle(circleOptions);
     }
 
-    private void drawMarker(LatLng point){
+    public void drawMarker(LatLng point){
         // Creating an instance of MarkerOptions
         com.androidmapsextensions.MarkerOptions markerOptions = new com.androidmapsextensions.MarkerOptions();
 
@@ -333,7 +388,57 @@ public class MapsActivity extends FragmentActivity implements com.androidmapsext
         markerOptions.snippet(Double.toString(point.latitude) + "," + Double.toString(point.longitude));
 
         // Adding marker on the Google Map
-        mMap.addMarker(markerOptions);
+        Marker marker = mMap.addMarker(markerOptions);
+        MarkerInfo markerInfo = new MarkerInfo();
+        markerInfo.setHour(0);
+        markerInfo.setMinute(0);
+        markerInfo.setId(marker.getId());
+        markerInfo.setRange(50);
+        markerInfo.setTitle("Marker");
+        marker.setTag(markerInfo);
+        //allMarkers.put(marker.getId(), markerOptions);
+    }
 
+    public static class MarkerInfo implements Serializable {
+        public int hour, minute, range;
+        public String title, id;
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public void setHour(int hour) {
+            this.hour = hour;
+        }
+
+        public void setMinute(int minute) {
+            this.minute = minute;
+        }
+
+        public void setRange(int range){
+            this.range = range;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public int getHour() {
+            return hour;
+        }
+
+        public int getMinute() {
+            return  minute;
+        }
+
+        public int getRange() { return range; }
+
+        public String getTitle() {
+            return title;
+        }
     }
 }
