@@ -31,7 +31,8 @@
             android:layout_width="71dp"
             android:layout_height="wrap_content"
             android:text="Go"
-            android:id="@+id/buttonGo" />
+            android:id="@+id/buttonGo"
+            android:onClick="onMapSearch"/>
 
         <ToggleButton
             android:layout_width="95dp"

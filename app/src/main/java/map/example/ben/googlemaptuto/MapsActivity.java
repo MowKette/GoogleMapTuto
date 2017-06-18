@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.support.v4.app.ActivityCompat;
@@ -30,10 +32,12 @@ import android.Manifest;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -44,23 +48,12 @@ public class MapsActivity extends FragmentActivity implements com.androidmapsext
     //private GoogleMap mMap;
     private com.androidmapsextensions.GoogleMap mMap;
 
-    //private Map<String, com.androidmapsextensions.MarkerOptions> allMarkers = new HashMap<>();
 
     LocationManager locationManager;
     PendingIntent pendingIntent;
     SharedPreferences sharedPreferences;
 
     int locationCount = 0;
-
-    /*static class CustomMarker {
-
-        MarkerOptions markerOptions;
-        String direction;
-
-        CustomMarker() {
-            //super.
-        }
-    }*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,16 +65,16 @@ public class MapsActivity extends FragmentActivity implements com.androidmapsext
 
 
 
-        final Button buttonGo = (Button) findViewById(R.id.buttonGo);
+        /*final Button buttonGo = (Button) findViewById(R.id.buttonGo);
         buttonGo.setOnClickListener(new View.OnClickListener(){
 
             public void onClick(View v) {
-                /*for(int i=0; i<allMarkers.size(); i++) {
+                for(int i=0; i<allMarkers.size(); i++) {
                     Toast.makeText(getBaseContext(), "This is allMarkers'ID = " + allMarkers.get())
-                }*/
+                }
 
             }
-        });
+        });*/
 
         final ToggleButton buttonAdd = (ToggleButton) findViewById(R.id.buttonMarker);
         buttonAdd.setOnClickListener(new View.OnClickListener(){
@@ -337,12 +330,49 @@ public class MapsActivity extends FragmentActivity implements com.androidmapsext
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
-            public boolean onMarkerClick(Marker marker) {
+            public boolean onMarkerClick(final Marker marker) {
+                /*final Button buttonTest = (Button) findViewById(R.id.buttonTest);
+                buttonTest.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        MarkerInfo markerInfo = (MarkerInfo) marker.getTag();
+                        markerInfo.setRange(100);
+                    }
+                });*/
 
                 return false;
             }
         });
 
+    }
+
+    public void onMapSearch(View view) {
+        System.out.print("Working so far 4");
+        EditText locationSearch = (EditText) findViewById(R.id.editText);
+        String location = locationSearch.getText().toString();
+        List<Address>addressList = null;
+
+        System.out.print("Working so far 3");
+
+        if (!location.equals("")) {
+            System.out.print("Working so far 2");
+            Geocoder geocoder = new Geocoder(this);
+            try {
+                System.out.print("Working so far");
+                addressList = geocoder.getFromLocationName(location, 1);
+                Address address = addressList.get(0);
+                LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+                mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+                System.out.print("Still working");
+            } catch (Exception e) {
+                Toast.makeText(getApplicationContext(), "Wrong address", Toast.LENGTH_LONG).show();
+                startActivity(new Intent(this, MapsActivity.class));
+                finish();
+            }
+
+            /*Address address = addressList.get(0);
+            LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+            mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));*/
+        }
     }
 
 
