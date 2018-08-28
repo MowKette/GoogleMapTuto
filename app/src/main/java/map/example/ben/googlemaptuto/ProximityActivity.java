@@ -6,13 +6,14 @@ package map.example.ben.googlemaptuto;
 
 import android.app.Activity;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
-import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.widget.Toast;
@@ -22,6 +23,9 @@ public class ProximityActivity extends Activity {
     String notificationTitle;
     String notificationContent;
     String tickerMessage;
+    String id = "channel1";
+    NotificationCompat.Builder builder;
+    PendingIntent pendingIntent;
 
 
     @Override
@@ -32,7 +36,7 @@ public class ProximityActivity extends Activity {
         boolean proximity_entering = getIntent().getBooleanExtra(LocationManager.KEY_PROXIMITY_ENTERING, true);
 
         Toast.makeText(getBaseContext(), "Test", Toast.LENGTH_LONG).show();
-        System.out.print("Test");
+        System.out.print("Test blabla \n");
 
         double lat = getIntent().getDoubleExtra("lat", 0);
 
@@ -65,32 +69,50 @@ public class ProximityActivity extends Activity {
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         /** Creating different tasks for each notification. See the flag Intent.FLAG_ACTIVITY_NEW_TASK */
-        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
+        //PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
 
         /** Getting the System service NotificationManager */
         NotificationManager nManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        //NotificationManagerCompat nManager = NotificationManagerCompat.from(getApplicationContext());
 
-        /** Configuring notification builder to create a notification */
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext())
-                .setWhen(System.currentTimeMillis())
-                .setContentText(notificationContent)
-                .setContentTitle(notificationTitle)
-                .setSmallIcon(R.drawable.ic_launcher)
-                .setAutoCancel(true)
-                .setTicker(tickerMessage)
-                .setContentIntent(pendingIntent)
-                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel mChannel = new NotificationChannel(id, "My Notifications", importance);
+            if (mChannel == null) {
+                mChannel = new NotificationChannel(id, notificationTitle, importance);
+                mChannel.enableVibration(true);
+                mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+                nManager.createNotificationChannel(mChannel);
+            }
+            builder = new NotificationCompat.Builder(this, id);
+            //NotificationCompat.Builder builder = new NotificationCompat.Builder(this, id);
+            //intent = new Intent(this, MainActivity.class);
+            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+            builder.setContentTitle(notificationTitle)  // required
+                    .setSmallIcon(R.drawable.ic_launcher) // required
+                    .setContentText(this.getString(R.string.app_name))  // required
+                    .setDefaults(Notification.DEFAULT_ALL)
+                    .setAutoCancel(true)
+                    .setContentIntent(pendingIntent)
+                    .setTicker(notificationTitle);
+        } else {
+            builder = new NotificationCompat.Builder(this, id);
+            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+            builder.setContentTitle(notificationTitle)                           // required
+                    .setSmallIcon(R.drawable.ic_launcher) // required
+                    .setContentText(this.getString(R.string.app_name))  // required
+                    .setDefaults(Notification.DEFAULT_ALL)
+                    .setAutoCancel(true)
+                    .setContentIntent(pendingIntent)
+                    .setTicker(notificationTitle)
+                    .setPriority(Notification.PRIORITY_HIGH);
+        }
 
-        /** Creating a notification from the notification builder */
-        Notification notification = notificationBuilder.build();
+        Notification notification = builder.build();
+        nManager.notify(1, notification);
 
-        /** Sending the notification to system.
-         * The first argument ensures that each notification is having a unique id
-         * If two notifications share same notification id, then the last notification replaces the first notification
-         * */
-        nManager.notify((int)System.currentTimeMillis(), notification);
-
-        /** Finishes the execution of this activity */
         finish();
     }
 }

@@ -1,5 +1,7 @@
 package map.example.ben.googlemaptuto;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +12,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -62,6 +65,8 @@ public class MapsActivity extends FragmentActivity implements com.androidmapsext
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getExtendedMapAsync(this);
+
+        //createNotificationChannel();
 
 
 
@@ -170,6 +175,8 @@ public class MapsActivity extends FragmentActivity implements com.androidmapsext
     public void onMapReady(com.androidmapsextensions.GoogleMap googleMap) {
         mMap = googleMap;
 
+        System.out.print("I'm here 2");
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
             Log.d("MyApp","success");
@@ -197,8 +204,9 @@ public class MapsActivity extends FragmentActivity implements com.androidmapsext
 
         // If locations are already saved
         if(locationCount!=0){
+            String toastString = "I counted " + locationCount + " locations";
 
-            Toast.makeText(getBaseContext(), "I counted locations", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBaseContext(), toastString, Toast.LENGTH_SHORT).show();
 
             String lat = "";
             String lng = "";
@@ -291,6 +299,7 @@ public class MapsActivity extends FragmentActivity implements com.androidmapsext
         mMap.setOnMapLongClickListener(new com.androidmapsextensions.GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng point) {
+                System.out.print("I'm here 1");
                 //Intent proximityIntent = new Intent("map.example.ben.googlemaptuto.activity.proximity");
                 Intent proximityIntent = new Intent(MapsActivity.this, ProximityActivity.class);
                 proximityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -469,6 +478,24 @@ public class MapsActivity extends FragmentActivity implements com.androidmapsext
 
         public String getTitle() {
             return title;
+        }
+    }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            //CharSequence name = getString(R.string.channel_name);
+            CharSequence name = "ProximityAlert";
+            //String description = getString(R.string.channel_description);
+            String description = "Proximity alert";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("ProxiAlert", name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
         }
     }
 }
